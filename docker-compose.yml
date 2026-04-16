@@ -1,0 +1,47 @@
+version: '3.8'
+
+services:
+  amr-detection:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    
+    container_name: amr-detection-app
+    
+    ports:
+      - "8501:8501"
+    
+    volumes:
+      - ./Models:/app/Models
+      - ./Dataset:/app/Dataset
+      - ./AMR_Dataset:/app/AMR_Dataset
+      - ./results:/app/results
+    
+    environment:
+      - MODEL_PATH=Models/best.pt
+      - CONFIDENCE_THRESHOLD=0.4
+      - IOU_THRESHOLD=0.45
+      - MAX_DETECTIONS=50
+      - LOG_LEVEL=INFO
+    
+    # For GPU support, uncomment the following:
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: 1
+    #           capabilities: [gpu]
+    
+    # For webcam access, uncomment:
+    # devices:
+    #   - /dev/video0:/dev/video0
+    
+    restart: unless-stopped
+    
+    networks:
+      - amr-network
+
+networks:
+  amr-network:
+    driver: bridge
